@@ -45,5 +45,8 @@ const ogImage = new URL('/img/profile.jpg', Astro.site);
     </main>
     <Footer />
     <script is:inline src="/js/reveal.js" defer></script>
+    {site.analyticsToken && (
+      <script is:inline src="/js/stats.js" data-token={site.analyticsToken} data-host={Astro.site?.hostname} defer></script>
+    )}
   </body>
 </html>

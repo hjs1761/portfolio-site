@@ -12,4 +12,6 @@ export const site = {
     { href: '/resume/', label: '이력서' },
   ],
   updated: '2026-10-18',
+  // Cloudflare Web Analytics 사이트 토큰(페이지에 그대로 드러나는 공개 값). 비우면 통계 스크립트를 넣지 않는다.
+  analyticsToken: '1dbce57665034bcdb92a770f79f12786',
 } as const;
