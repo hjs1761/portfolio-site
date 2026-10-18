@@ -11,5 +11,5 @@ export const site = {
     { href: '/ai/', label: 'AI와 일하는 방식' },
     { href: '/resume/', label: '이력서' },
   ],
-  updated: '2026-10-15',
+  updated: '2026-10-18',
 } as const;

@@ -1,6 +1,9 @@
 # portfolio-site
 
-황준석 포트폴리오·이력서 사이트. 글은 Astro 정적 페이지이고, 「배포 가드 시뮬레이터」만 작은 FastAPI로 판정합니다.
+황준석 포트폴리오·이력서 사이트 — **https://hwangjunseok.dev**
+
+글은 Astro 정적 페이지이고, 「배포 가드 시뮬레이터」만 작은 FastAPI로 판정합니다.
+운영은 Docker Compose로 띄우고 Cloudflare Tunnel 뒤에 둡니다(공인 포트를 열지 않음).
 
 ## 구성
 
