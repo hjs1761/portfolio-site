@@ -29,7 +29,9 @@ for (let i = 0; i < n; i++) {
 }
 await p.locator('[data-sim-input]').fill('cp fo/coupon.php /mnt/prod/shop/fo/coupon.php');
 await p.locator('[data-sim-form] button[type=submit]').click();
-await p.waitForTimeout(400);
+// 고정 시간만 기다리면 응답이 느린 실제 주소에서 직전 시나리오 결과를 읽는다
+await p.waitForFunction(() => !document.querySelector('[data-simulator]').hasAttribute('data-busy'));
+await p.waitForTimeout(150);
 const manualCtx = await p.locator('.result .r-scenario').count();
 console.log(`직접 입력: ${(await p.locator('.result .r-kind').textContent())?.trim()} · 시나리오 설명 붙음 ${manualCtx}`);
 await b.close();
