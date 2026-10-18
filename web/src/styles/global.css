@@ -1,0 +1,463 @@
+/* 색·글꼴·간격 토큰. 어두운 톤이 기본, data-theme="light" 로 전환한다. */
+:root,
+[data-theme="dark"] {
+  --bg: #0c0e0d;
+  --bg-2: #121513;
+  --bg-3: #171b19;
+  --line: #222725;
+  --line-2: #2e3431;
+  --text: #e7ebe8;
+  --text-2: #a9b2ad;
+  --text-3: #7d8681;
+  --accent: #5ad48a;
+  --accent-soft: rgba(90, 212, 138, 0.1);
+  --accent-ink: #062513;
+  --danger: #ff7b72;
+  --danger-soft: rgba(255, 123, 114, 0.1);
+  --warn: #e3b341;
+  --accent-2: #e3b341;
+  --accent-2-soft: rgba(227, 179, 65, 0.12);
+  --dot: rgba(231, 235, 232, 0.07);
+  --selection: rgba(90, 212, 138, 0.28);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg: #f6f7f6;
+  --bg-2: #ffffff;
+  --bg-3: #eef1ef;
+  --line: #e1e5e2;
+  --line-2: #cdd4cf;
+  --text: #111513;
+  --text-2: #49524d;
+  --text-3: #6a736e;
+  --accent: #14773d;
+  --accent-soft: rgba(20, 119, 61, 0.08);
+  --accent-ink: #ffffff;
+  --danger: #b8322a;
+  --danger-soft: rgba(184, 50, 42, 0.07);
+  --warn: #8a5f00;
+  --accent-2: #9a6400;
+  --accent-2-soft: rgba(154, 100, 0, 0.1);
+  --dot: rgba(17, 21, 19, 0.08);
+  --selection: rgba(20, 119, 61, 0.18);
+  --shadow: 0 1px 2px rgba(17, 21, 19, 0.06), 0 12px 32px -14px rgba(17, 21, 19, 0.18);
+  color-scheme: light;
+}
+
+:root {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  /* JetBrains Mono 에는 한글이 없다 → 한글은 Pretendard 로 이어지게 둔다 */
+  --font-mono: "JetBrains Mono Variable", "Pretendard Variable", Pretendard, ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+  --max: 1120px;
+  --gutter: clamp(16px, 4vw, 32px);
+  --radius: 6px;
+  --header-h: 60px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--text);
+}
+
+html {
+  scrollbar-color: var(--line-2) var(--bg);
+  accent-color: var(--accent);
+}
+
+input,
+textarea {
+  caret-color: var(--accent);
+}
+
+/* 숫자는 자리 폭을 맞춘다(기간·측정값이 흔들리지 않게) */
+.mono,
+time,
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin: 0;
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+}
+
+code,
+kbd,
+pre,
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* 글 읽는 페이지(프로젝트 상세·이력서): 본문 단을 화면 정가운데 두고,
+   오른쪽 여백이 충분한 넓은 화면에서만 그 여백에 목차(.article-side)를 띄운다 */
+.article-grid {
+  --measure: 720px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--measure)) minmax(0, 1fr);
+  padding-inline: var(--gutter);
+}
+
+.article-grid > * {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.article-grid > .article-side {
+  grid-column: 3;
+  padding-left: 40px;
+}
+
+.article-side > * {
+  max-width: 232px;
+}
+
+@media (max-width: 1247px) {
+  .article-grid > .article-side {
+    display: none;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: var(--radius);
+}
+
+.skip-link:focus {
+  top: 8px;
+}
+
+/* 섹션 구획: 얇은 가로선 + 작은 고정폭 머리말 */
+.section {
+  padding-block: clamp(56px, 8vw, 96px);
+  border-top: 1px solid var(--line);
+}
+
+
+.section-title {
+  font-size: clamp(26px, 3.6vw, 36px);
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+/* 톤을 한 단계 바꾼 구획 — 스크롤 리듬을 만든다 */
+.section.alt {
+  background: var(--bg-2);
+}
+
+/* 점 격자 질감 — 가장자리로 갈수록 흐려진다 */
+.dotgrid {
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 30% 40%, #000 30%, transparent 85%);
+  mask-image: radial-gradient(ellipse 80% 70% at 30% 40%, #000 30%, transparent 85%);
+}
+
+.section-lead {
+  margin-top: 12px;
+  color: var(--text-2);
+  max-width: 640px;
+}
+
+/* 버튼 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-2);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn-primary:hover {
+  color: var(--accent-ink);
+  filter: brightness(1.06);
+}
+
+/* 작은 꼬리표 (기술·기간 표기) */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 본문(마크다운) */
+.prose {
+  max-width: 720px;
+  color: var(--text);
+  font-size: 17px;
+}
+
+.prose > * + * {
+  margin-top: 1em;
+}
+
+.prose h2 {
+  margin-top: 2.4em;
+  padding-top: 0.6em;
+  font-size: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.prose > h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.prose h3 {
+  margin-top: 1.8em;
+  font-size: 18px;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.3em;
+}
+
+.prose li + li {
+  margin-top: 0.35em;
+}
+
+.prose li::marker {
+  color: var(--text-3);
+}
+
+.prose strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose code {
+  font-size: 0.88em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+}
+
+.prose pre {
+  padding: 16px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.prose pre code {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--accent);
+  color: var(--text-2);
+}
+
+.prose table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.prose th,
+.prose td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  color: var(--text-2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 인쇄: 이력서 PDF 저장용. 밝은 톤 고정, 화면 장식 제거 */
+@media print {
+  :root,
+  [data-theme="dark"],
+  [data-theme="light"] {
+    --bg: #ffffff;
+    --bg-2: #ffffff;
+    --bg-3: #f3f4f3;
+    --line: #d9ddd9;
+    --line-2: #c7ccc8;
+    --text: #111111;
+    --text-2: #3d3d3d;
+    --text-3: #5c5c5c;
+    --accent: #14773d;
+    color-scheme: light;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  .no-print,
+  .site-header,
+  .site-footer,
+  .skip-link {
+    display: none !important;
+  }
+
+  .section {
+    padding-block: 0;
+    border: 0;
+  }
+
+  .prose {
+    max-width: none;
+    font-size: 10.5pt;
+  }
+
+  .prose h2 {
+    break-after: avoid;
+    margin-top: 1.6em;
+  }
+
+  .prose a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+  }
+}

@@ -1,0 +1,533 @@
+---
+// 프로젝트별 구조 도식. 숫자·이름은 프로젝트 근거(프런트매터 source)에 있는 것만 쓴다.
+// viewBox 440×210 기준 — 카드(약 440px)와 상세(최대 720px)에서 글자가 9~13px 로 읽히도록 맞췄다.
+interface Props {
+  id: string;
+  size?: 'card' | 'full';
+}
+
+const { id, size = 'card' } = Astro.props;
+
+const titles: Record<string, string> = {
+  neopharm: '카페24 몰 3곳(아토팜샵·리얼베리어몰·티엘스몰)이 API·웹훅으로 자체 관리자·API 서버와 연결되고, 그 서버가 배치·광고 성과 전송·기획전 기능을 맡는 구조',
+  'amore-d2c': '2025년 1월부터 2026년 9월 종료까지 맡은 일의 기간: 운영 개발, CRM, 추첨제, 관리자 이관·보안, 서비스 종료',
+  krafton: '관리자 세션 만료 때의 리다이렉트 응답이 메인·index 필수 캐싱에 걸려 저장되고, 일반 사용자도 그 응답을 받아 관리자 로그인 화면으로 이동한 흐름과, 만료 리다이렉트 차단·쿠키 정리·관리자 응답 캐시 금지로 해결한 것',
+  'roh-foundation': '후원 신청 뒤 카카오 출금동의와 ARS 출금동의 두 갈래, ARS 결과를 3초마다 확인해 완료·거부·무응답으로 나누는 흐름',
+  jiradoo: '고객사 VPN 안의 Jira와 수집기, 사내 지라두 서버, 두레이 업무·알림·공수 보고서로 이어지는 구조',
+  'rag-search': '검색 품질과 리랭커 후보 수 실험의 측정 결과 막대',
+  artifacts: '구 시스템에서 기능 목록을 거쳐 새 시스템으로, 에셋 8,955개·페이지 728개를 누락 0으로 옮긴 결과',
+  'deploy-guard': '명령이 다섯 단계 검사를 거쳐 통과하거나 차단되는 판정 순서',
+};
+
+const malls = ['아토팜샵', '리얼베리어몰', '티엘스몰'];
+
+// 크래프톤: 위 줄 = 원인(관리자 세션 만료 응답이 캐시됨), 아래 줄 = 결과(일반 사용자가 관리자 로그인으로)
+const krRows = [
+  [
+    { main: '관리자 세션 만료', sub: '', tone: '' },
+    { main: '보안 플러그인', sub: '로그인으로 리다이렉트', tone: '' },
+    { main: 'CloudFront 캐싱', sub: '/ · index 필수', tone: 'amber' },
+  ],
+  [
+    { main: '일반 사용자 접속', sub: '', tone: '' },
+    { main: '캐시된 응답', sub: '리다이렉트 그대로', tone: 'amber' },
+    { main: '관리자 로그인 화면', sub: '일반 사용자도 이동', tone: 'danger' },
+  ],
+];
+
+// 아모레 연표: 2025-01(0) ~ 2026-09 끝(21) 을 x 150~440 에 놓는다
+const mx = (m: number) => 150 + (m * 290) / 21;
+const amoreRows = [
+  { label: '운영 개발', from: 0, to: 8, tone: 'neutral-fill' },
+  { label: '라보에이치 CRM', from: 7, to: 18, tone: 'amber-fill' },
+  { label: '케어박스 추첨제', from: 13, to: 19, tone: 'amber-fill' },
+  { label: '관리자 이관·보안', from: 12, to: 19, tone: 'accent-fill' },
+  { label: '서비스 종료', from: 18, to: 21, tone: 'accent-fill' },
+];
+---
+
+<figure class:list={['diagram', `size-${size}`, 'reveal-draw']} data-reveal>
+  <svg viewBox="0 0 440 210" role="img" aria-label={titles[id] ?? ''}>
+    {
+      id === 'neopharm' && (
+        <g>
+          <text x="0" y="14" class="t-label">카페24 몰 3곳</text>
+          {malls.map((m, i) => (
+            <g>
+              <rect x="0" y={27 + i * 32} width="124" height="26" rx="13" class="n" />
+              <text x="62" y={44 + i * 32} class="t-small mid">{m}</text>
+            </g>
+          ))}
+          <path d="M124 40 H140 V104 H124" class="ln faint" />
+          <path d="M140 72 H168" class="ln draw" pathLength="1" />
+          <rect x="168" y="44" width="124" height="56" rx="6" class="n accent" />
+          <text x="230" y="68" class="t-node mid">자체 관리자</text>
+          <text x="230" y="86" class="t-node mid">API 서버</text>
+          <text x="230" y="120" class="t-minor mid">카페24 API · 웹훅</text>
+          <path d="M292 72 H306 V37 H320" class="ln draw" pathLength="1" />
+          <path d="M292 72 H320" class="ln draw" pathLength="1" />
+          <path d="M292 72 H306 V107 H320" class="ln draw" pathLength="1" />
+          <rect x="320" y="22" width="120" height="30" rx="6" class="n" />
+          <text x="380" y="42" class="t-node mid">가격·재고 배치</text>
+          <rect x="320" y="57" width="120" height="30" rx="6" class="n" />
+          <text x="380" y="77" class="t-node mid">광고 성과 전송</text>
+          <rect x="320" y="92" width="120" height="30" rx="6" class="n" />
+          <text x="380" y="112" class="t-node mid">이벤트·기획전</text>
+          <text x="0" y="156" class="t-label amber">주요 기능</text>
+          {['임직원 구매한도', '최저가 자동 적용', 'CPS 광고 연동'].map((c, i) => (
+            <g>
+              <rect x={i * 150} y="168" width="140" height="28" rx="14" class="chip" />
+              <text x={i * 150 + 70} y="187" class="t-chip mid">{c}</text>
+            </g>
+          ))}
+        </g>
+      )
+    }
+
+    {
+      id === 'amore-d2c' && (
+        <g>
+          {amoreRows.map((r, i) => (
+            <g>
+              <text x="0" y={33 + i * 32} class="t-node">{r.label}</text>
+              <rect x="150" y={22 + i * 32} width="290" height="14" rx="3" class="track" />
+              <rect x={mx(r.from)} y={22 + i * 32} width={mx(r.to) - mx(r.from)} height="14" rx="3" class={`bar ${r.tone} grow`} />
+            </g>
+          ))}
+          <path d="M150 182 H440" class="ln faint" />
+          <path d={`M150 178 V186 M${mx(12)} 178 V186 M440 178 V186`} class="ln faint" />
+          <text x="150" y="202" class="t-minor">2025.01</text>
+          <text x={mx(12)} y="202" class="t-minor mid">2026.01</text>
+          <text x="440" y="202" class="t-minor end">2026.09 종료</text>
+        </g>
+      )
+    }
+
+    {
+      id === 'krafton' && (
+        <g>
+          <text x="0" y="14" class="t-label">이관 뒤 생긴 문제 — 캐시에 남은 관리자 응답</text>
+          {krRows.map((row, r) =>
+            row.map((n, i) => (
+              <g>
+                <rect x={i * 156} y={24 + r * 80} width="128" height="44" rx="6" class={`n ${n.tone}`} />
+                <text x={i * 156 + 64} y={24 + r * 80 + (n.sub ? 19 : 27)} class={`t-node mid ${n.tone === 'danger' ? 'danger-text' : ''}`}>
+                  {n.main}
+                </text>
+                {n.sub && (
+                  <text x={i * 156 + 64} y={24 + r * 80 + 35} class="t-minor mid">
+                    {n.sub}
+                  </text>
+                )}
+                {i < 2 && <path d={`M${i * 156 + 128} ${46 + r * 80} H${i * 156 + 156}`} class="ln draw" pathLength="1" />}
+              </g>
+            )),
+          )}
+          <path d="M376 68 V86 H220 V104" class="ln dashed" />
+          <rect x="0" y="166" width="440" height="30" rx="6" class="n accent" />
+          <text x="220" y="186" class="t-node mid">해결 — 만료 리다이렉트 차단 · 쿠키 정리 · 관리자 no-store</text>
+        </g>
+      )
+    }
+
+    {
+      id === 'roh-foundation' && (
+        <g>
+          <text x="0" y="14" class="t-label">후원 출금동의 — 두 가지 방식</text>
+          <rect x="0" y="84" width="84" height="40" rx="6" class="n" />
+          <text x="42" y="109" class="t-node mid">후원 신청</text>
+          <path d="M84 104 H100 V52 H116" class="ln draw" pathLength="1" />
+          <path d="M84 104 H100 V156 H116" class="ln draw" pathLength="1" />
+          <rect x="116" y="32" width="120" height="40" rx="6" class="n" />
+          <text x="176" y="50" class="t-node mid">카카오 출금동의</text>
+          <text x="176" y="65" class="t-minor mid">전자서명</text>
+          <rect x="116" y="136" width="120" height="40" rx="6" class="n" />
+          <text x="176" y="154" class="t-node mid">ARS 출금동의</text>
+          <text x="176" y="169" class="t-minor mid">전화로 동의</text>
+          <path d="M236 52 H264" class="ln draw" pathLength="1" />
+          <rect x="264" y="32" width="176" height="40" rx="6" class="n accent" />
+          <text x="352" y="50" class="t-node mid">동의 파일(DER) 생성</text>
+          <text x="352" y="65" class="t-minor mid">관리자 일괄 내려받기</text>
+          <path d="M236 156 H264" class="ln draw" pathLength="1" />
+          <rect x="264" y="136" width="108" height="40" rx="6" class="n amber" />
+          <text x="318" y="154" class="t-node mid">결과 확인</text>
+          <text x="318" y="169" class="t-minor mid">3초마다 최대 60회</text>
+          <path d="M372 156 H378 V128 H384" class="ln draw" pathLength="1" />
+          <path d="M372 156 H384" class="ln draw" pathLength="1" />
+          <path d="M372 156 H378 V184 H384" class="ln draw" pathLength="1" />
+          <rect x="384" y="118" width="56" height="20" rx="10" class="n accent" />
+          <text x="412" y="132" class="t-small mid">완료</text>
+          <rect x="384" y="146" width="56" height="20" rx="10" class="n danger" />
+          <text x="412" y="160" class="t-small mid">거부</text>
+          <rect x="384" y="174" width="56" height="20" rx="10" class="n" />
+          <text x="412" y="188" class="t-small mid">무응답</text>
+        </g>
+      )
+    }
+
+    {
+      id === 'jiradoo' && (
+        <g>
+          <text x="0" y="20" class="t-label">고객사 VPN</text>
+          <rect x="0" y="30" width="150" height="104" rx="8" class="zone" />
+          <rect x="12" y="62" width="56" height="40" rx="6" class="n" />
+          <text x="40" y="87" class="t-node mid">Jira</text>
+          <path d="M68 82 H82" class="ln draw" pathLength="1" />
+          <rect x="82" y="56" width="58" height="52" rx="6" class="n" />
+          <text x="111" y="79" class="t-node mid">수집기</text>
+          <text x="111" y="97" class="t-minor mid">사내 PC</text>
+          <path d="M140 82 H184" class="ln draw" pathLength="1" />
+          <text x="162" y="74" class="t-minor mid">정기</text>
+          <rect x="184" y="52" width="104" height="60" rx="6" class="n accent" />
+          <text x="236" y="78" class="t-node mid">지라두 서버</text>
+          <text x="236" y="96" class="t-minor mid">사내 · Docker</text>
+          <path d="M288 82 H304 V44 H320" class="ln draw" pathLength="1" />
+          <path d="M288 82 H320" class="ln draw" pathLength="1" />
+          <path d="M288 82 H304 V120 H320" class="ln draw" pathLength="1" />
+          <rect x="320" y="30" width="120" height="28" rx="6" class="n" />
+          <text x="380" y="49" class="t-node mid">두레이 업무</text>
+          <rect x="320" y="68" width="120" height="28" rx="6" class="n" />
+          <text x="380" y="87" class="t-node mid">팀·개인 알림</text>
+          <rect x="320" y="106" width="120" height="28" rx="6" class="n" />
+          <text x="380" y="125" class="t-node mid">공수 보고서</text>
+          <text x="0" y="176" class="t-minor">Jira에 닿는 것은 VPN 안의 수집기뿐이라 수집과 전송을 나눴다</text>
+        </g>
+      )
+    }
+
+    {
+      id === 'artifacts' && (
+        <g>
+          <rect x="0" y="24" width="100" height="44" rx="6" class="n faint" />
+          <text x="50" y="51" class="t-node faint mid">구 시스템</text>
+          <path d="M100 46 H128" class="ln draw" pathLength="1" />
+          <rect x="128" y="24" width="112" height="44" rx="6" class="n amber" />
+          <text x="184" y="51" class="t-node mid">기능 목록 작성</text>
+          <path d="M240 46 H268" class="ln draw" pathLength="1" />
+          <rect x="268" y="24" width="172" height="44" rx="6" class="n accent" />
+          <text x="354" y="51" class="t-node mid">새 시스템 · Laravel</text>
+          <text x="0" y="122" class="t-big">8,955</text>
+          <text x="0" y="142" class="t-minor">에셋 이관</text>
+          <text x="150" y="122" class="t-big">728</text>
+          <text x="150" y="142" class="t-minor">페이지 이관</text>
+          <text x="300" y="122" class="t-big accent-text">0</text>
+          <text x="300" y="142" class="t-minor">누락</text>
+          <text x="0" y="196" class="t-minor">기존 주소는 그대로 두고 에셋을 내보내는 구조를 다시 짰다</text>
+        </g>
+      )
+    }
+
+    {
+      id === 'rag-search' && (
+        <g>
+          <text x="0" y="14" class="t-label">검색 품질 (MRR)</text>
+          <text x="0" y="40" class="t-node">청킹 개선 전</text>
+          <rect x="112" y="28" width="300" height="16" rx="3" class="track" />
+          <rect x="112" y="28" width="216.6" height="16" rx="3" class="bar amber-fill grow" />
+          <text x="336" y="41" class="t-val amber-text">0.722</text>
+          <text x="0" y="68" class="t-node">메일 한 통 단위</text>
+          <rect x="112" y="56" width="300" height="16" rx="3" class="track" />
+          <rect x="112" y="56" width="248.7" height="16" rx="3" class="bar accent-fill grow" />
+          <text x="368" y="69" class="t-val accent-text">0.829</text>
+
+          <text x="0" y="114" class="t-label">리랭커 후보 수 실험 — 정답률, 같은 53문항</text>
+          <text x="0" y="140" class="t-node">후보 40개</text>
+          <rect x="112" y="128" width="300" height="16" rx="3" class="track" />
+          <rect x="112" y="128" width="257.1" height="16" rx="3" class="bar neutral-fill grow" />
+          <text x="377" y="141" class="t-val">0.857</text>
+          <text x="0" y="168" class="t-node">후보 100개</text>
+          <rect x="112" y="156" width="300" height="16" rx="3" class="track" />
+          <rect x="112" y="156" width="192.9" height="16" rx="3" class="bar danger-fill grow" />
+          <text x="313" y="169" class="t-val danger-text">0.643</text>
+          <rect x="358" y="188" width="54" height="20" rx="4" class="stamp" />
+          <text x="385" y="202" class="t-chip danger-text mid">기각</text>
+          <text x="0" y="202" class="t-minor">10문항만 보면 좋아 보였지만 맞던 12문항이 깨졌다</text>
+        </g>
+      )
+    }
+
+    {
+      id === 'deploy-guard' && (
+        <g>
+          <text x="0" y="18" class="t-cmd">$ cp fo/coupon.php /mnt/prod/…</text>
+          <path d="M38 26 V58" class="ln draw arrow" pathLength="1" />
+          <rect x="316" y="2" width="124" height="30" rx="6" class="n accent" />
+          <text x="378" y="22" class="t-node mid">통과 · 서버본 백업</text>
+          <path d="M402 58 V36" class="ln draw arrow accent-ln" pathLength="1" />
+
+          {[
+            ['운영 경로', '들어 있나'],
+            ['제자리 편집', '· 삭제'],
+            ['쓰기 대상', '추출'],
+            ['서버 접속', '확인'],
+            ['diff 쌍', '· 30분'],
+          ].map(([a, b], i) => (
+            <g>
+              <rect x={i * 91} y="58" width="76" height="48" rx="6" class="n" />
+              <text x={i * 91 + 38} y="79" class="t-node mid">{a}</text>
+              <text x={i * 91 + 38} y="96" class="t-minor mid">{b}</text>
+              {i < 4 && <path d={`M${i * 91 + 76} 82 H${i * 91 + 91}`} class="ln draw" pathLength="1" />}
+            </g>
+          ))}
+
+          <path d="M129 106 V150" class="ln dashed danger-ln" />
+          <path d="M311 106 V150" class="ln dashed danger-ln" />
+          <path d="M402 106 V150" class="ln dashed danger-ln" />
+          <rect x="0" y="150" width="440" height="34" rx="6" class="n danger" />
+          <text x="16" y="172" class="t-node danger-text">차단</text>
+          <text x="58" y="172" class="t-minor">— 무엇이 문제인지와 실행할 명령을 알려 준다</text>
+          <text x="0" y="204" class="t-minor">판단이 필요 없는 백업은 자동으로, 판단이 필요한 diff는 막아서 사람이 보게</text>
+        </g>
+      )
+    }
+  </svg>
+</figure>
+
+<style>
+  .diagram {
+    margin: 0;
+  }
+
+  .diagram svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .size-full {
+    max-width: 720px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background-color: var(--bg-2);
+    background-image: radial-gradient(var(--dot) 1px, transparent 1.2px);
+    background-size: 18px 18px;
+  }
+
+  text {
+    font-family: var(--font-sans);
+    fill: var(--text-2);
+  }
+
+  .mid {
+    text-anchor: middle;
+  }
+
+  .t-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    fill: var(--text-3);
+  }
+
+  .t-node {
+    font-size: 13px;
+    font-weight: 600;
+    fill: var(--text);
+  }
+
+  .t-minor {
+    font-size: 11.5px;
+    fill: var(--text-3);
+  }
+
+  .t-small {
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--text-2);
+  }
+
+  .end {
+    text-anchor: end;
+  }
+
+  .t-chip {
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--accent-2);
+  }
+
+  .t-val {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    fill: var(--text-2);
+  }
+
+  .t-big {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 600;
+    fill: var(--text);
+  }
+
+  .t-cmd {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    fill: var(--text-2);
+  }
+
+  .faint {
+    fill: var(--text-3);
+    opacity: 0.75;
+  }
+
+  .accent,
+  .t-label.accent {
+    fill: var(--accent);
+  }
+
+  .t-label.amber {
+    fill: var(--accent-2);
+  }
+
+  .accent-text {
+    fill: var(--accent);
+  }
+
+  .amber-text {
+    fill: var(--accent-2);
+  }
+
+  .danger-text {
+    fill: var(--danger);
+  }
+
+  .n {
+    fill: var(--bg);
+    stroke: var(--line-2);
+    stroke-width: 1.2;
+  }
+
+  .n.accent {
+    fill: var(--accent-soft);
+    stroke: var(--accent);
+  }
+
+  .n.amber {
+    fill: var(--accent-2-soft);
+    stroke: var(--accent-2);
+  }
+
+  .n.danger {
+    fill: var(--danger-soft);
+    stroke: color-mix(in srgb, var(--danger) 60%, transparent);
+  }
+
+  .n.faint {
+    fill: transparent;
+    stroke: var(--line);
+  }
+
+  /* 네트워크 경계(예: 고객사 VPN) — 노드보다 옅지만 보이게 */
+  .zone {
+    fill: transparent;
+    stroke: var(--line-2);
+    stroke-width: 1.2;
+    stroke-dasharray: 5 4;
+  }
+
+  .n.dashed,
+  .ln.dashed {
+    stroke-dasharray: 4 4;
+  }
+
+  .chip {
+    fill: var(--accent-2-soft);
+    stroke: color-mix(in srgb, var(--accent-2) 55%, transparent);
+    stroke-width: 1;
+  }
+
+  .stamp {
+    fill: var(--danger-soft);
+    stroke: var(--danger);
+    stroke-width: 1;
+  }
+
+  .ln {
+    fill: none;
+    stroke: var(--text-3);
+    stroke-width: 1.3;
+  }
+
+  .ln.faint {
+    stroke: var(--line-2);
+  }
+
+  .accent-ln {
+    stroke: var(--accent);
+  }
+
+  .danger-ln {
+    stroke: color-mix(in srgb, var(--danger) 70%, transparent);
+  }
+
+  .strike {
+    stroke: var(--danger);
+    stroke-width: 1.5;
+    opacity: 0.8;
+  }
+
+  .cell {
+    fill: var(--bg-3);
+    stroke: var(--line-2);
+    stroke-width: 1;
+  }
+
+  .cell.noise {
+    fill: var(--line);
+    stroke: none;
+    opacity: 0.7;
+  }
+
+  .cell.rest {
+    fill: transparent;
+  }
+
+  .cell.work {
+    fill: var(--accent);
+    stroke: none;
+  }
+
+  .track {
+    fill: var(--bg-3);
+  }
+
+  .amber-fill {
+    fill: var(--accent-2);
+  }
+
+  .accent-fill {
+    fill: var(--accent);
+  }
+
+  .neutral-fill {
+    fill: var(--text-3);
+  }
+
+  .danger-fill {
+    fill: var(--danger);
+    opacity: 0.85;
+  }
+
+  /* 화면에 들어오면 선이 그려지고 막대가 자란다. 움직임 줄이기·스크립트 없음이면 처음부터 완성 상태 */
+  :global(.motion) .reveal-draw:not(.in-view) .draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  :global(.motion) .reveal-draw .draw {
+    stroke-dasharray: 1;
+    transition: stroke-dashoffset 900ms cubic-bezier(0.16, 1, 0.3, 1) 150ms;
+  }
+
+  :global(.motion) .reveal-draw:not(.in-view) .grow {
+    transform: scaleX(0);
+  }
+
+  :global(.motion) .reveal-draw .grow {
+    transform-box: fill-box;
+    transform-origin: left center;
+    transition: transform 1000ms cubic-bezier(0.16, 1, 0.3, 1) 120ms;
+  }
+</style>

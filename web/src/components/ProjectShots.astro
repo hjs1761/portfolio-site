@@ -1,0 +1,105 @@
+---
+// 운영 중인 공개 화면 캡처. 머리줄에 실제 주소를 적어 어느 사이트인지 바로 보이게 한다.
+// 누르면 원본 크기로 열린다. 캡션에는 캡처 날짜와 맡은 범위를 적는다.
+interface Shot {
+  src: string;
+  alt: string;
+  host: string;
+  caption: string;
+}
+
+interface Props {
+  shots: Shot[];
+}
+
+const { shots } = Astro.props;
+---
+
+<section class="shots" aria-labelledby="shots">
+  <h2 id="shots">화면</h2>
+  {
+    shots.map((s) => (
+      <figure class="shot">
+        <a class="frame" href={s.src} target="_blank" rel="noopener">
+          <span class="bar">
+            <span class="host mono">{s.host}</span>
+            <span class="open">원본 크기</span>
+          </span>
+          <img src={s.src} alt={s.alt} width="1280" height="800" loading="lazy" decoding="async" />
+        </a>
+        <figcaption>{s.caption}</figcaption>
+      </figure>
+    ))
+  }
+</section>
+
+<style>
+  .shots {
+    margin-top: 2.4em;
+    padding-top: 0.6em;
+    border-top: 1px solid var(--line);
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 1em;
+  }
+
+  .shot {
+    margin: 0;
+  }
+
+  .shot + .shot {
+    margin-top: 32px;
+  }
+
+  .frame {
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+    transition: border-color 0.15s;
+  }
+
+  .frame:hover {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--line-2));
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .host {
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+
+  .open {
+    flex-shrink: 0;
+  }
+
+  .frame:hover .open {
+    color: var(--accent);
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-3);
+  }
+</style>

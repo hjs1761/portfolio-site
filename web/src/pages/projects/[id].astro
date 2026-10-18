@@ -1,0 +1,328 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Simulator from '../../components/Simulator.astro';
+import ProjectDiagram from '../../components/ProjectDiagram.astro';
+import ProjectShots from '../../components/ProjectShots.astro';
+import Toc from '../../components/Toc.astro';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  return all.map((entry, i) => ({
+    params: { id: entry.id },
+    props: { entry, prev: all[i - 1] ?? null, next: all[i + 1] ?? null },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+  prev: CollectionEntry<'projects'> | null;
+  next: CollectionEntry<'projects'> | null;
+}
+
+const { entry, prev, next } = Astro.props;
+const { Content, headings } = await render(entry);
+const d = entry.data;
+const toc = headings.filter((h) => h.depth === 2);
+if (d.shots.length) toc.push({ depth: 2, slug: 'shots', text: '화면' });
+// 「네오팜 — 아토팜샵 · …」 → 이름과 세부 목록. 목록은 항목 단위로만 줄을 바꾼다
+const [clientName, clientDetail] = d.client.split(' — ');
+const clientItems = clientDetail ? clientDetail.split(' · ') : [];
+---
+
+<Base title={d.title} description={d.summary}>
+  <article>
+    <header class="project-head">
+      <div class="article-grid">
+        <div class="head-inner">
+          <a class="back" href="/projects/">
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M13 8H3M7 4L3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            프로젝트 목록
+          </a>
+          <h1>{d.title}</h1>
+          <p class="summary">{d.summary}</p>
+          <dl class="facts">
+            <div>
+              <dt>기간</dt>
+              <dd class="mono">{d.period}</dd>
+            </div>
+            <div>
+              <dt>고객사·환경</dt>
+              <dd>
+                {clientName}
+                {
+                  clientItems.length > 0 && (
+                    <span class="client-items">
+                      {clientItems.map((c, i) =>
+                        i < clientItems.length - 1 ? (
+                          <Fragment>
+                            <span class="nw">{`${c} ·`}</span>{' '}
+                          </Fragment>
+                        ) : (
+                          <span class="nw">{c}</span>
+                        ),
+                      )}
+                    </span>
+                  )
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>역할</dt>
+              <dd>{d.role}</dd>
+            </div>
+            <div class="wide">
+              <dt>기술</dt>
+              <dd class="tags">{d.stack.map((s) => <span class="tag">{s}</span>)}</dd>
+            </div>
+            {
+              d.links.length > 0 && (
+                <div>
+                  <dt>사이트</dt>
+                  <dd class="links">
+                    {d.links.map((l) => (
+                      <a href={l.url} target="_blank" rel="noopener">
+                        {l.label}
+                        <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
+                          <path d="M5 11L11 5M6 5h5v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </a>
+                    ))}
+                  </dd>
+                </div>
+              )
+            }
+          </dl>
+        </div>
+      </div>
+    </header>
+
+    <div class="article-grid body">
+      <div class="main">
+        <ProjectDiagram id={entry.id} size="full" />
+        <div class="prose">
+          <Content />
+        </div>
+        {d.shots.length > 0 && <ProjectShots shots={d.shots} />}
+      </div>
+      <aside class="article-side">
+        <Toc items={toc} label="프로젝트 목차" />
+      </aside>
+    </div>
+
+    {
+      entry.id === 'deploy-guard' && (
+        <section id="simulator" class="sim-section" aria-labelledby="sim-title">
+          <div class="container">
+            <Simulator />
+          </div>
+        </section>
+      )
+    }
+
+    <div class="article-grid">
+      <nav class="pager" aria-label="다른 프로젝트">
+        {
+          prev ? (
+            <a class="pager-link" href={`/projects/${prev.id}/`}>
+              <span class="dir">
+                <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M13 8H3M7 4L3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                이전 프로젝트
+              </span>
+              <strong>{prev.data.title}</strong>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+        {
+          next ? (
+            <a class="pager-link next" href={`/projects/${next.id}/`}>
+              <span class="dir">
+                다음 프로젝트
+                <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <strong>{next.data.title}</strong>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+      </nav>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .project-head {
+    padding-block: clamp(40px, 7vw, 80px) clamp(28px, 4vw, 44px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-3);
+    margin-bottom: 28px;
+  }
+
+
+  .main > .prose {
+    margin-top: clamp(28px, 4vw, 40px);
+  }
+
+  h1 {
+    font-size: clamp(28px, 4.4vw, 40px);
+    text-wrap: balance;
+  }
+
+  .summary {
+    margin-top: 18px;
+    max-width: 720px;
+    font-size: 18px;
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+
+  /* 가운데 단(720px) 안에서 세 칸: 보여 주는 것·기간·고객사 / 역할·기술(두 칸) */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: 18px 32px;
+    margin: 32px 0 0;
+  }
+
+  .facts .wide {
+    grid-column: span 2;
+  }
+
+  .client-items {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .nw {
+    white-space: nowrap;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    text-underline-offset: 3px;
+  }
+
+  .links a:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  .facts dt {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-bottom: 6px;
+  }
+
+  .facts dd {
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .body {
+    padding-block: clamp(28px, 4vw, 40px) clamp(48px, 7vw, 80px);
+  }
+
+  .sim-section {
+    padding-block: clamp(40px, 6vw, 72px);
+    border-top: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+    padding-block: 40px 72px;
+    border-top: 1px solid var(--line);
+  }
+
+  .pager-link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--text);
+  }
+
+  .pager-link:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .dir {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .next .dir {
+    justify-content: flex-end;
+  }
+
+  .pager-link strong {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .next {
+    text-align: right;
+  }
+
+  @media (max-width: 640px) {
+    .facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px 20px;
+    }
+
+    .facts .wide {
+      grid-column: 1 / -1;
+    }
+
+    .pager {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .next {
+      text-align: left;
+    }
+
+    .next .dir {
+      justify-content: flex-start;
+    }
+  }
+</style>

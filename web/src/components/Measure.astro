@@ -1,0 +1,163 @@
+---
+// 전후 측정 막대. 장식용 지표 타일 대신, 무엇을 어떻게 쟀는지와 함께 비율 그대로 그린다.
+interface Row {
+  label: string;
+  value: number;
+  display: string;
+  tone: 'before' | 'after' | 'muted';
+}
+
+interface Props {
+  title: string;
+  unit: string;
+  max: number;
+  rows: Row[];
+  note: string;
+  href: string;
+  link: string;
+}
+
+const { title, unit, max, rows, note, href, link } = Astro.props;
+---
+
+<article class="measure reveal-draw" data-reveal>
+  <header>
+    <h3>{title}</h3>
+    <p class="unit">{unit}</p>
+  </header>
+  <ul class="rows">
+    {
+      rows.map((r, i) => (
+        <li class={`row ${r.tone}`} style={`--w:${Math.max(0, Math.min(1, r.value / max))};--i:${i}`}>
+          <span class="r-label">{r.label}</span>
+          <span class="r-track">
+            <span class="r-fill" />
+          </span>
+          <span class="r-val mono">{r.display}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="note">{note}</p>
+  <a class="more" href={href}>
+    {link}
+    <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </a>
+</article>
+
+<style>
+  .measure {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 0;
+    border-top: 1px solid var(--line-2);
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+
+  .unit {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(96px, 9.5em) minmax(0, 1fr) 4.5em;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .r-label {
+    color: var(--text-2);
+  }
+
+  .r-track {
+    position: relative;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--bg-3);
+    overflow: hidden;
+  }
+
+  .r-fill {
+    position: absolute;
+    inset: 0;
+    width: calc(var(--w) * 100%);
+    border-radius: 3px;
+    background: var(--text-3);
+    transform-origin: left center;
+  }
+
+  .before .r-fill {
+    background: var(--accent-2);
+  }
+
+  .after .r-fill {
+    background: var(--accent);
+  }
+
+  .r-val {
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-2);
+  }
+
+  .before .r-val {
+    color: var(--accent-2);
+  }
+
+  .after .r-val {
+    color: var(--accent);
+  }
+
+  .note {
+    font-size: 14.5px;
+    color: var(--text-2);
+    line-height: 1.65;
+  }
+
+  .more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .more:hover {
+    color: var(--accent);
+  }
+
+  :global(.motion) .measure:not(.in-view) .r-fill {
+    transform: scaleX(0);
+  }
+
+  :global(.motion) .measure .r-fill {
+    transition: transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--i) * 140ms + 100ms);
+  }
+</style>

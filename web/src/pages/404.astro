@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="페이지를 찾을 수 없습니다">
+  <section class="nf">
+    <div class="container">
+      <p class="mono code">404</p>
+      <h1>찾는 페이지가 없습니다</h1>
+      <p class="section-lead">주소가 바뀌었거나 아직 없는 페이지입니다.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/">홈으로</a>
+        <a class="btn" href="/projects/">프로젝트 보기</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    padding-block: clamp(80px, 14vw, 160px);
+  }
+
+  .code {
+    color: var(--accent);
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 4.4vw, 40px);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+</style>

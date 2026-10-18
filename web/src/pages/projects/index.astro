@@ -1,0 +1,81 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+
+const all = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+// 지금 하는 일(AI Labs)을 먼저, 그전 팀의 고객사 운영을 뒤에
+const groups = [
+  { id: 'internal', title: 'AI Labs · 사내 도구', items: all.filter((p) => p.data.group === 'internal') },
+  { id: 'client', title: '고객사 프로젝트', items: all.filter((p) => p.data.group === 'client') },
+];
+---
+
+<Base title="프로젝트" description="AI Labs 사내 도구 4개와 고객사 프로젝트 4개 — 맡은 일, 주요 기능, 링크와 화면.">
+  <section class="page-head">
+    <div class="container">
+      <h1>프로젝트</h1>
+      <p class="section-lead">
+        2026년부터 AI Labs에서 만드는 사내 도구 4개와, 그전 플랫폼 사업 개발팀에서 맡은 고객사 프로젝트 4개입니다.
+        페이지마다 맡은 일, 주요 기능, 까다로웠던 점을 적고 사이트 링크와 화면을 붙였습니다.
+      </p>
+    </div>
+  </section>
+  {
+    groups.map((g) => (
+      <section class="group" aria-labelledby={`group-${g.id}`}>
+        <div class="container">
+          <h2 class="group-title" id={`group-${g.id}`}>
+            {g.title}
+            <span class="count mono">{g.items.length}</span>
+          </h2>
+          <div class="list">
+            {g.items.map((p, i) => (
+              <ProjectCard
+                id={p.id}
+                href={`/projects/${p.id}/`}
+                index={i}
+                title={p.data.title}
+                summary={p.data.summary}
+                client={p.data.client}
+                period={p.data.period}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    ))
+  }
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(48px, 8vw, 88px) clamp(24px, 4vw, 40px);
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 44px);
+  }
+
+  .group {
+    padding-bottom: clamp(48px, 7vw, 80px);
+  }
+
+  .group-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: clamp(20px, 2.4vw, 24px);
+  }
+
+  .count {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+
+  .list {
+    border-bottom: 1px solid var(--line);
+  }
+</style>

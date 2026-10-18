@@ -1,0 +1,107 @@
+---
+import { site } from '../site';
+import ThemeToggle from './ThemeToggle.astro';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(href);
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <a class="brand" href="/" aria-label={`${site.name} 홈`}>
+      <span class="brand-name">{site.name}</span>
+      <span class="brand-role mono">backend</span>
+    </a>
+    <nav class="nav" aria-label="주요 메뉴">
+      {
+        site.nav.map((item) => (
+          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+    <ThemeToggle />
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(140%) blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    min-height: var(--header-h);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--text);
+  }
+
+  .brand-name {
+    font-weight: 700;
+    font-size: 17px;
+  }
+
+  .brand-role {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .nav {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .nav a {
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    color: var(--text-2);
+    font-size: 15px;
+  }
+
+  .nav a:hover {
+    color: var(--text);
+    background: var(--bg-3);
+  }
+
+  .nav a[aria-current='page'] {
+    color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .bar {
+      flex-wrap: wrap;
+      gap: 0 12px;
+      padding-block: 8px;
+    }
+
+    .brand {
+      flex: 1;
+    }
+
+    .nav {
+      order: 3;
+      width: 100%;
+      margin-left: -12px;
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      font-size: 14px;
+      padding: 6px 12px;
+    }
+  }
+</style>

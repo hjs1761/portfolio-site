@@ -1,0 +1,217 @@
+---
+import Base from '../layouts/Base.astro';
+
+const principles = [
+  {
+    title: 'AI에게 맡기는 일',
+    body: [
+      '코드 작성과 수정, 로그·데이터를 훑는 분석 스크립트, 소스 비교와 목록 정리, 문서 초안은 AI 코딩 에이전트(Claude Code)와 함께 합니다.',
+      '맡길 때는 근거 자료의 위치와 하지 말아야 할 일을 먼저 적어 줍니다. 운영 서버, 고객 데이터, 되돌릴 수 없는 명령은 어디까지 허용되는지 미리 정해 둡니다.',
+    ],
+  },
+  {
+    title: '직접 확인하는 일',
+    body: [
+      '「됐다」는 판단은 맡기지 않습니다. 실제 계정으로 끝까지 눌러 보고, 실제 데이터로 계산식을 맞춰 보고, 바꾸기 전과 후를 같은 기준으로 잽니다.',
+      '쓴 사람과 검토하는 사람을 나눕니다. 같은 대화 안에서 만든 결과를 그 대화 안에서 승인하지 않고, 별도 세션이나 별도 검토 에이전트가 근거와 대조합니다. 이 사이트의 프로젝트 설명도 그렇게 검토했습니다.',
+    ],
+  },
+  {
+    title: '되돌리기 어려운 곳은 강제로 지킵니다',
+    body: [
+      '규칙 문서는 지켜지지 않았습니다. 실측해 보니 운영 반영 직전 비교 실행률이 61%였습니다. 그래서 운영 서버에 쓰는 명령은 실행 직전에 훅이 검사하고, 조건이 맞지 않으면 막습니다.',
+      '막는 장치를 끄는 스위치는 사람만 만들 수 있게 했습니다. 에이전트가 스스로 안전장치를 풀면 장치가 있는 의미가 없습니다.',
+    ],
+    link: { href: '/projects/deploy-guard/', label: '배포 가드와 시뮬레이터' },
+  },
+  {
+    title: 'AI가 만든 결과도 숫자로 봅니다',
+    body: [
+      '사내 RAG 검색은 코드보다 평가셋을 먼저 만들었습니다. 그럴듯해 보인 개선안 대부분이 측정에서 나빠졌고, 그때마다 되돌렸습니다.',
+      '측정 자체도 의심합니다. 같은 질문을 반복한 벤치마크가 캐시를 재고 있었고, 일부 문항만 보면 개선으로 보이는 변경이 전체에서는 나빴습니다.',
+    ],
+    link: { href: '/projects/rag-search/', label: '사내 RAG 검색' },
+  },
+];
+
+const team = [
+  {
+    name: '지라두',
+    desc: '고객사 Jira와 사내 두레이를 잇는 업무 연동 플랫폼. 업무 전달과 공수 집계를 손으로 옮기던 일을 없앴고, 교육 자료를 만들어 사내에 발표했습니다.',
+  },
+  {
+    name: '사내 RAG 검색',
+    desc: '흩어진 업무 기록에서 「왜 그렇게 했는지」를 근거와 함께 찾아 주는 검색. 담당자가 바뀌어도 결정의 이유가 남도록.',
+  },
+  {
+    name: '기획자용 업무 도구 이식',
+    desc: '기획자가 개인 PC에서 돌리던 업무 정리 도구를 관리자 화면 안으로 옮기고 있습니다. 설치 없이 팀이 같이 쓰는 것이 목표이고, 지금은 개발 서버에서 기획자와 함께 시험하는 단계입니다.',
+  },
+  {
+    name: '이력 관리 저장소',
+    desc: '업무 시스템 기록(업무·댓글·Jira·커밋)에서 경력 정본을 만들고, 공개 원칙으로 걸러 이 사이트와 이력서를 만듭니다. 근거 없는 문장을 찾아 고친 것도 이 과정에서였습니다.',
+  },
+];
+---
+
+<Base title="AI와 일하는 방식" description="AI 코딩 에이전트에게 맡기는 일, 직접 확인하는 일, 강제 장치와 측정.">
+  <section class="page-head">
+    <div class="container">
+      <h1>AI와 일하는 방식</h1>
+      <p class="section-lead">
+        AI가 코드를 같이 쓰면서, 개발자의 일은 무엇을 맡기고 무엇을 직접 책임질지 정하는 쪽으로 옮겨 갔습니다. 제가 지키는
+        원칙과, 그 원칙으로 팀에 넣은 도구를 적었습니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <ul class="principles">
+        {
+          principles.map((p) => (
+            <li class="principle">
+              <h2>{p.title}</h2>
+              <div class="p-body">
+                {p.body.map((t) => (
+                  <p>{t}</p>
+                ))}
+                {p.link && (
+                  <a class="p-link" href={p.link.href}>
+                    {p.link.label}
+                    <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                      <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="team-title">
+    <div class="container">
+      <h2 class="section-title" id="team-title">팀의 일하는 방식에 넣은 것</h2>
+      <ul class="team">
+        {
+          team.map((t) => (
+            <li>
+              <h3>{t.name}</h3>
+              <p>{t.desc}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(48px, 8vw, 88px) clamp(32px, 5vw, 56px);
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 44px);
+  }
+
+  /* 홈의 「일하는 방식」과 같은 편집형 두 단: 제목 왼쪽, 본문 오른쪽 */
+  .principles {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .principle {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 12px 48px;
+    padding-block: 32px;
+    border-top: 1px solid var(--line);
+  }
+
+  /* 바로 위에 구획선이 있으므로 첫 항목은 선 없이 시작한다 */
+  .principle:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .principle:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .principle h2 {
+    font-size: clamp(22px, 2.6vw, 28px);
+    letter-spacing: -0.03em;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .p-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .p-body p {
+    color: var(--text-2);
+    font-size: 16.5px;
+    line-height: 1.75;
+  }
+
+  .p-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--accent);
+    transition: gap 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .p-link:hover {
+    gap: 10px;
+  }
+
+  .team {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .team li {
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+  }
+
+  .team h3 {
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+
+  .team p {
+    color: var(--text-2);
+    font-size: 15px;
+  }
+
+  @media (max-width: 760px) {
+    .principle {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .team {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,148 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Toc from '../components/Toc.astro';
+import { site } from '../site';
+
+const entry = await getEntry('resume', 'resume');
+if (!entry) throw new Error('이력서 콘텐츠 없음');
+const { Content, headings } = await render(entry);
+// 목차에는 큰 구획(h2)과 회사(h3)만. 회사 줄의 기간은 떼고 이름만 쓴다
+const toc = headings
+  .filter((h) => h.depth === 2 || h.depth === 3)
+  .map((h) => ({ ...h, text: h.depth === 3 ? h.text.split(' · ')[0] : h.text }));
+---
+
+<Base title="이력서" description="황준석 경력기술서 — 커머스 운영 7년차 백엔드 개발자.">
+  <section class="resume-head">
+    <div class="article-grid">
+      <div class="head-inner">
+        <div>
+          <h1>{site.name} <span class="en">{site.nameEn}</span></h1>
+          <p class="sub">{site.role} · 경력 7년 · 위버로프트 재직 중</p>
+          <p class="contact">
+            <span class="label">이메일</span>
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </p>
+        </div>
+        <button class="btn no-print" type="button" data-print>PDF로 저장</button>
+      </div>
+    </div>
+  </section>
+  <div class="article-grid body">
+    <div class="prose resume">
+      <Content />
+    </div>
+    <aside class="article-side no-print">
+      <Toc items={toc} label="이력서 목차" />
+    </aside>
+  </div>
+</Base>
+
+<script is:inline src="/js/print.js" defer></script>
+
+<style>
+  .resume-head {
+    padding-block: clamp(48px, 8vw, 88px) 32px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .head-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 44px);
+  }
+
+  .en {
+    font-size: 0.5em;
+    font-weight: 500;
+    color: var(--text-3);
+    margin-left: 6px;
+    letter-spacing: 0;
+  }
+
+  .sub {
+    margin-top: 10px;
+    color: var(--text-2);
+  }
+
+  .contact {
+    margin-top: 6px;
+    font-size: 15px;
+  }
+
+  .label {
+    color: var(--text-3);
+    margin-right: 8px;
+  }
+
+  .body {
+    padding-block: clamp(36px, 5vw, 56px) 80px;
+  }
+
+
+  .resume :global(h3) {
+    margin-top: 2.6em;
+    font-size: 20px;
+    color: var(--accent);
+  }
+
+  .resume :global(h4) {
+    margin-top: 2em;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .resume :global(h4 + p) {
+    margin-top: 0.4em;
+    font-size: 14px;
+    color: var(--text-3);
+  }
+
+  .resume :global(ul) {
+    font-size: 15.5px;
+  }
+
+  .resume :global(hr) {
+    margin-top: 3em;
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .resume :global(hr + p) {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  @media print {
+    .article-grid {
+      display: block;
+      padding-inline: 0;
+    }
+
+    .resume-head {
+      padding: 0 0 12px;
+    }
+
+    .resume :global(h3) {
+      color: #111;
+      margin-top: 1.6em;
+      break-after: avoid;
+    }
+
+    .resume :global(h4) {
+      break-after: avoid;
+    }
+
+    /* 종이에서는 누를 수 없는 사이트 내부 링크(「(프로젝트)」 등)는 숨긴다 */
+    .resume :global(a[href^='/']) {
+      display: none;
+    }
+  }
+</style>

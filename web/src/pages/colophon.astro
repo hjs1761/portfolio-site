@@ -1,0 +1,219 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="이 사이트의 구조" description="정적 사이트와 상태 없는 판정 API, Docker Compose로 만든 이 사이트의 구조.">
+  <section class="page-head">
+    <div class="container">
+      <h1>이 사이트의 구조</h1>
+      <p class="section-lead">
+        글은 정적 파일로, 시뮬레이터 판정만 작은 API로 처리합니다. API가 멈춰도 글은 그대로 읽히고, 시뮬레이터 칸에만 점검
+        중 표시가 뜹니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">요청 흐름</h2>
+      <figure class="diagram">
+        <svg viewBox="0 0 880 300" role="img" aria-labelledby="flow-title flow-desc">
+          <title id="flow-title">요청 흐름도</title>
+          <desc id="flow-desc">
+            브라우저의 요청은 nginx 로 들어가 정적 파일은 그대로 돌려주고, /api 로 시작하는 요청만 FastAPI 판정 서버로 넘긴다.
+          </desc>
+          <g class="box">
+            <rect x="10" y="110" width="150" height="80" rx="6"></rect>
+            <text x="85" y="146" class="t-main">브라우저</text>
+            <text x="85" y="170" class="t-sub">페이지 · 시뮬레이터</text>
+          </g>
+          <g class="box accent">
+            <rect x="270" y="90" width="210" height="120" rx="6"></rect>
+            <text x="375" y="126" class="t-main">nginx</text>
+            <text x="375" y="152" class="t-sub">정적 파일 · 보안 헤더</text>
+            <text x="375" y="174" class="t-sub">요청 크기·속도 제한</text>
+          </g>
+          <g class="box">
+            <rect x="600" y="20" width="270" height="90" rx="6"></rect>
+            <text x="735" y="56" class="t-main">정적 파일 (Astro 빌드)</text>
+            <text x="735" y="82" class="t-sub">프로젝트 · 이력서 · 글</text>
+          </g>
+          <g class="box">
+            <rect x="600" y="190" width="270" height="90" rx="6"></rect>
+            <text x="735" y="226" class="t-main">FastAPI · guard_core</text>
+            <text x="735" y="252" class="t-sub">상태 없음 · 셸 실행 없음</text>
+          </g>
+          <g class="edge">
+            <line x1="160" y1="150" x2="262" y2="150"></line>
+            <polygon points="262,144 272,150 262,156"></polygon>
+            <path d="M480 130 L540 130 L540 65 L592 65"></path>
+            <polygon points="592,59 602,65 592,71"></polygon>
+            <path d="M480 170 L540 170 L540 235 L592 235"></path>
+            <polygon points="592,229 602,235 592,241"></polygon>
+          </g>
+          <text x="548" y="56" class="t-label">/</text>
+          <text x="548" y="226" class="t-label">/api/*</text>
+        </svg>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container cols">
+      <div>
+        <h2 class="section-title">시뮬레이터가 안전한 이유</h2>
+        <ul class="list">
+          <li><strong>명령을 실행하지 않습니다.</strong> 입력은 문자열로만 분석합니다. 서버에 셸을 여는 코드가 없습니다.</li>
+          <li>
+            <strong>서버가 상태를 저장하지 않습니다.</strong> diff 기록 같은 세션 상태는 브라우저가 들고 다니며 요청마다 보냅니다.
+            서버에 쌓이는 것이 없어 저장소 남용이나 세션 관리 문제가 생기지 않습니다.
+          </li>
+          <li><strong>입력에 상한이 있습니다.</strong> 명령 2,000자, 상태 항목 수와 경로 길이를 검증하고, nginx가 요청 크기와 속도를 제한합니다.</li>
+          <li><strong>판정 규칙은 실제 훅과 같습니다.</strong> 파일 시스템·시각·서버 접속 확인만 가상으로 바꿨고, 실제 훅을 검증했던 항목을 그대로 테스트로 옮겼습니다.</li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="section-title">콘텐츠는 어디서 오나</h2>
+        <ol class="list">
+          <li>업무 시스템 기록(업무·댓글·Jira·커밋)과 예전 이력 자료를 모아 비공개 저장소에 경력 정본을 만듭니다.</li>
+          <li>공개 원칙으로 거릅니다. 연락처는 이메일 하나, 고객사 보안 사항·내부 주소·사람 이름·고객사 데이터 규모는 싣지 않습니다.</li>
+          <li>프로젝트마다 근거 출처를 메모로 남기고, 쓴 사람과 다른 검토자가 근거와 대조합니다.</li>
+          <li>Markdown 파일로 옮겨 Astro로 정적 페이지를 만듭니다.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">사용한 것</h2>
+      <dl class="stack">
+        <div><dt>페이지</dt><dd>Astro, TypeScript, Pretendard · JetBrains Mono(자체 호스팅)</dd></div>
+        <div><dt>시뮬레이터</dt><dd>Python 3.12, FastAPI, pydantic, pytest</dd></div>
+        <div><dt>실행</dt><dd>Docker Compose, nginx</dd></div>
+        <div><dt>다음 단계</dt><dd>집 서버(맥미니)에 배포하고 외부 터널로 공개, 가동 감시, 서버가 멈췄을 때 정적 사본으로 전환</dd></div>
+      </dl>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(48px, 8vw, 88px) clamp(32px, 5vw, 56px);
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 44px);
+  }
+
+  .diagram {
+    margin: 28px 0 0;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+    overflow-x: auto;
+  }
+
+  .diagram svg {
+    display: block;
+    width: 100%;
+    min-width: 640px;
+    height: auto;
+  }
+
+  .box rect {
+    fill: var(--bg);
+    stroke: var(--line-2);
+    stroke-width: 1.2;
+  }
+
+  .box.accent rect {
+    stroke: var(--accent);
+  }
+
+  .t-main {
+    fill: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    text-anchor: middle;
+  }
+
+  .t-sub {
+    fill: var(--text-2);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    text-anchor: middle;
+  }
+
+  .t-label {
+    fill: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+
+  .edge line,
+  .edge path {
+    stroke: var(--text-3);
+    stroke-width: 1.4;
+    fill: none;
+  }
+
+  .edge polygon {
+    fill: var(--text-3);
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px;
+  }
+
+  .list {
+    margin: 20px 0 0;
+    padding-left: 1.2em;
+    color: var(--text-2);
+  }
+
+  .list li + li {
+    margin-top: 10px;
+  }
+
+  .list strong {
+    color: var(--text);
+  }
+
+  .stack {
+    margin: 24px 0 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .stack div {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .stack dt {
+    color: var(--text-3);
+    font-size: 14px;
+  }
+
+  .stack dd {
+    margin: 0;
+  }
+
+  @media (max-width: 760px) {
+    .cols,
+    .stack div {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .stack div {
+      gap: 4px;
+    }
+  }
+</style>

@@ -1,0 +1,206 @@
+---
+---
+
+<div class="livelog" data-livelog>
+  <div class="bar">
+    <span class="name mono">deploy-guard</span>
+    <span class="status mono" data-log-status data-mode="idle">연결 중</span>
+  </div>
+  <ol class="lines mono" data-log-lines aria-label="배포 가드 판정 기록"></ol>
+  <a class="foot" href="/projects/deploy-guard/#simulator">
+    <span>실제 판정 API가 돌고 있습니다. 직접 명령을 넣어 보세요</span>
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </a>
+</div>
+
+<script>
+  import { mountLiveLog } from '../scripts/livelog';
+
+  const root = document.querySelector<HTMLElement>('[data-livelog]');
+  if (root) mountLiveLog(root);
+</script>
+
+<style>
+  .livelog {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--bg-2) 92%, transparent);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+
+  .name {
+    color: var(--text-2);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-3);
+  }
+
+  .status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-3);
+  }
+
+  .status[data-mode='live'] {
+    color: var(--accent);
+  }
+
+  .status[data-mode='live']::before {
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .status[data-mode='offline']::before {
+    background: var(--accent-2);
+  }
+
+  .lines {
+    list-style: none;
+    margin: 0;
+    padding: 14px 16px 6px;
+    min-height: 296px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+
+  .lines :global(.line) {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    animation: line-in 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .lines :global(.prompt) {
+    position: absolute;
+    color: var(--accent);
+  }
+
+  .lines :global(.cmd) {
+    padding-left: 16px;
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+
+  .lines :global(.line:not(.done) .cmd)::after {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 1.05em;
+    margin-left: 2px;
+    vertical-align: -2px;
+    background: var(--accent);
+    animation: caret 1s steps(1) infinite;
+  }
+
+  .lines :global(.line) {
+    position: relative;
+  }
+
+  .lines :global(.comment .cmd) {
+    padding-left: 0;
+    color: var(--accent-2);
+  }
+
+  .lines :global(.comment .prompt) {
+    display: none;
+  }
+
+  .lines :global(.verdict) {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding-left: 16px;
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+
+  .lines :global(.badge) {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 6px;
+    border-radius: 3px;
+  }
+
+  .lines :global(.allow .badge) {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .lines :global(.deny .badge) {
+    color: var(--danger);
+    background: var(--danger-soft);
+  }
+
+  .foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .foot:hover {
+    color: var(--accent);
+  }
+
+  @keyframes line-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes caret {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lines :global(.line) {
+      animation: none;
+    }
+
+    .lines :global(.line:not(.done) .cmd)::after {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .lines {
+      min-height: 248px;
+      font-size: 12px;
+    }
+  }
+</style>

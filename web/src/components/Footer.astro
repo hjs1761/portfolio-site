@@ -1,0 +1,80 @@
+---
+import { site } from '../site';
+---
+
+<footer class="site-footer">
+  <div class="container foot">
+    <div class="who">
+      <strong>{site.name}</strong>
+      <span class="mono">{site.nameEn} · {site.role}</span>
+    </div>
+    <ul class="links">
+      <li>
+        <span class="label">이메일</span>
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+      </li>
+      <li><a href="/colophon/">이 사이트의 구조</a></li>
+      <li class="mono updated">마지막 갱신 {site.updated}</li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-block: 40px 56px;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .who {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .who strong {
+    color: var(--text);
+    font-size: 15px;
+  }
+
+  .who .mono {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .label {
+    margin-right: 8px;
+    color: var(--text-3);
+  }
+
+  .links a {
+    color: var(--text);
+  }
+
+  .links a:hover {
+    color: var(--accent);
+  }
+
+  .updated {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+</style>

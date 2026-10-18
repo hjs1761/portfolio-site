@@ -1,0 +1,42 @@
+# 로컬 실행: docker compose -f deploy/docker-compose.yml up -d --build
+# 접속: http://127.0.0.1:8088
+name: portfolio
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/api.Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 256m
+    pids_limit: 64
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8088:80"
+    security_opt:
+      - no-new-privileges:true
+    # nginx 마스터는 root 로 떠서 워커를 nginx 사용자로 내린다 — 그에 필요한 권한만 남긴다
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - NET_BIND_SERVICE
+    mem_limit: 128m
+    pids_limit: 64

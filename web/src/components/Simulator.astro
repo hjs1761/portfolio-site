@@ -1,0 +1,658 @@
+---
+---
+
+<div class="sim" data-simulator>
+  <header class="sim-head">
+    <h2 id="sim-title">배포 가드 시뮬레이터</h2>
+    <p class="section-lead">
+      시나리오를 고르면 단계별로 명령을 보내고, 실제 훅과 같은 규칙으로 판정한 결과를 보여 줍니다. 직접 명령을 입력해도
+      됩니다. 작업 위치는 <code class="mono" data-sim-cwd>/work/shop</code>입니다.
+    </p>
+  </header>
+
+  <div class="offline" data-sim-offline hidden>
+    <p><strong>데모 서버 점검 중입니다.</strong></p>
+    <p>시뮬레이터는 판정 API가 있어야 동작합니다. 프로젝트 설명은 그대로 읽을 수 있습니다.</p>
+  </div>
+
+  <div class="layout" data-sim-body hidden>
+    <section class="panel scenarios-panel" aria-label="시나리오">
+      <div class="panel-head">
+        <p class="panel-title">시나리오</p>
+        <p class="panel-note">빈 상태에서 시작합니다</p>
+      </div>
+      <ol class="scenarios" data-sim-scenarios></ol>
+    </section>
+
+    <section class="panel console" aria-label="판정">
+      <form class="run" data-sim-form>
+        <label class="visually-hidden" for="sim-tool">도구</label>
+        <select id="sim-tool" class="tool mono" data-sim-tool>
+          <option value="Bash">Bash</option>
+          <option value="Edit">Edit</option>
+          <option value="Write">Write</option>
+        </select>
+        <label class="visually-hidden" for="sim-input" data-sim-input-label>명령</label>
+        <input
+          id="sim-input"
+          class="input mono"
+          data-sim-input
+          maxlength="2000"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="btn btn-primary run-btn" type="submit">판정</button>
+      </form>
+
+      <div class="result" data-sim-result aria-live="polite" tabindex="-1">
+        <p class="r-empty">시나리오를 고르거나 명령을 입력해 보세요.</p>
+      </div>
+
+      <div class="state">
+        <div class="state-head">
+          <p class="panel-title">diff 기록 <span class="ttl mono">유효 30분</span></p>
+          <div class="state-actions">
+            <span class="clock mono" data-sim-clock>현재 시각</span>
+            <button class="btn small" type="button" data-sim-advance>시간 +31분</button>
+            <button class="btn small" type="button" data-sim-reset>초기화</button>
+          </div>
+        </div>
+        <ul class="diffs" data-sim-diffs></ul>
+      </div>
+
+      <div class="history-wrap">
+        <p class="panel-title">실행 기록</p>
+        <ol class="history" data-sim-history></ol>
+      </div>
+    </section>
+
+    <aside class="panel files" aria-label="가상 파일">
+      <p class="panel-title">가상 파일</p>
+      <div data-sim-tree></div>
+    </aside>
+
+    <div class="notes">
+      <div class="note">
+        <h3 class="panel-title">알려진 한계 (실제 훅과 같음)</h3>
+        <ul>
+          <li>한 줄에 <code>diff A; diff B</code>처럼 diff를 여러 개 쓰면 첫 diff만 기록됩니다.</li>
+          <li>한 명령에 단일 파일 삭제가 들어 있으면 그 자리에서 통과로 끝나, 같은 명령의 다른 쓰기는 검사하지 않습니다.</li>
+        </ul>
+        <p class="limits-note">실제로 쓰면서 찾은 동작입니다. 숨기지 않고 그대로 옮겼습니다.</p>
+      </div>
+      <div class="note">
+        <h3 class="panel-title">실제 훅과 다른 점</h3>
+        <ul>
+          <li>빈 폴더에 새 파일을 올리면 통과시킵니다. 실제 훅은 이 판정을 2026년 9월에 고쳤고, 시뮬레이터는 고친 판을 따릅니다.</li>
+          <li>공개 서버라서 셸 변수 전개 길이에 상한을 두었습니다. 상한을 넘으면 변수를 풀지 않은 명령으로 판정합니다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { mountSimulator } from '../scripts/simulator';
+
+  const root = document.querySelector<HTMLElement>('[data-simulator]');
+  if (root) mountSimulator(root);
+</script>
+
+<style>
+  .sim-head h2 {
+    font-size: clamp(24px, 3.2vw, 30px);
+  }
+
+  .sim-head code {
+    font-size: 0.9em;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+  }
+
+  .offline {
+    margin-top: 24px;
+    padding: 20px;
+    border: 1px dashed var(--line-2);
+    border-radius: var(--radius);
+    color: var(--text-2);
+  }
+
+  /* 넓은 화면: 왼쪽 = 고를 것(시나리오)과 가상 환경, 오른쪽 = 판정 콘솔. 콘솔이 두 줄을 차지한다.
+     좁은 화면: 시나리오 → 콘솔 → 가상 파일 → 한계 순으로 쌓는다(DOM 순서와 같음). */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      'scen console'
+      'files console'
+      'notes notes';
+    gap: 16px;
+    margin-top: 28px;
+    align-items: start;
+  }
+
+  .layout[hidden] {
+    display: none;
+  }
+
+  .scenarios-panel {
+    grid-area: scen;
+  }
+
+  .console {
+    grid-area: console;
+  }
+
+  .files {
+    grid-area: files;
+  }
+
+  .notes {
+    grid-area: notes;
+  }
+
+  .panel {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    padding: 16px;
+    min-width: 0;
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 10px;
+  }
+
+  .panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin-bottom: 10px;
+  }
+
+  .panel-head .panel-title {
+    margin: 0;
+  }
+
+  .panel-note {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  /* 한 줄짜리 목록. 칸이 넓어지면(태블릿) 두 줄 격자로 펼친다 */
+  .scenarios {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .scenarios :global(.scenario) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+
+  .scenarios :global(.scenario:hover) {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  }
+
+  .scenarios :global(.scenario[aria-pressed='true']) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .scenarios :global(.s-num) {
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .scenarios :global(.s-title) {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .scenarios :global(.s-expect) {
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid currentColor;
+  }
+
+  .scenarios :global(.s-expect.deny) {
+    color: var(--danger);
+  }
+
+  .scenarios :global(.s-expect.allow) {
+    color: var(--accent);
+  }
+
+  .run {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .tool,
+  .input {
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  .input:focus,
+  .tool:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+
+  .run-btn {
+    min-height: 44px;
+  }
+
+  .result {
+    margin-top: 14px;
+    padding: 14px;
+    min-height: 120px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+  }
+
+  .result[data-decision='deny'] {
+    border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
+  }
+
+  .result[data-decision='allow'] {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  }
+
+  .result :global(.r-empty),
+  .result :global(.r-error) {
+    color: var(--text-3);
+    font-size: 14px;
+  }
+
+  .result :global(.r-error) {
+    color: var(--danger);
+  }
+
+  /* 시나리오로 돌린 판정이면 무엇을 시험하는지 결과 위에 붙인다 */
+  .result :global(.r-scenario) {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .result :global(.r-s-title) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .result :global(.r-s-step) {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-3);
+  }
+
+  .result :global(.r-s-desc) {
+    margin-top: 6px;
+    max-width: 62ch;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-2);
+  }
+
+  .result :global(.r-head) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+  }
+
+  .result :global(.r-badge) {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .result :global(.r-badge.allow) {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .result :global(.r-badge.deny) {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  .result :global(.r-kind) {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .result :global(.r-cmd) {
+    display: block;
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+
+  .result :global(.r-msg) {
+    margin: 10px 0 0;
+    padding: 12px;
+    border-radius: var(--radius);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--text);
+  }
+
+  .result :global(.r-sub) {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .result :global(.r-checks),
+  .result :global(.r-events) {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .result :global(.chk) {
+    padding: 2px 0;
+  }
+
+  .result :global(.chk.hit) {
+    color: var(--warn);
+  }
+
+  .result :global(.chk.decisive) {
+    color: var(--danger);
+    font-weight: 600;
+  }
+
+  .result :global(.chk.skip) {
+    color: var(--text-3);
+  }
+
+  .result :global(.chk-detail) {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text-3);
+    overflow-wrap: anywhere;
+  }
+
+  .state,
+  .history-wrap {
+    margin-top: 16px;
+  }
+
+  .state-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .state-head .panel-title {
+    margin: 0;
+  }
+
+  .ttl {
+    margin-left: 6px;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .state-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .clock {
+    font-size: 12px;
+    color: var(--warn);
+    margin-right: 4px;
+  }
+
+  .btn.small {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .diffs,
+  .history {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .diffs :global(.diff) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-size: 12px;
+  }
+
+  .diffs :global(.target) {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .diffs :global(.sources) {
+    color: var(--text-3);
+    overflow-wrap: anywhere;
+  }
+
+  .diffs :global(.remain) {
+    color: var(--warn);
+    font-size: 11px;
+  }
+
+  .diffs :global(.empty),
+  .history :global(.empty) {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .history :global(.h-item) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+    align-items: baseline;
+    font-size: 12px;
+  }
+
+  .history :global(.h-badge) {
+    font-size: 11px;
+  }
+
+  .history :global(.h-item.allow .h-badge) {
+    color: var(--accent);
+  }
+
+  .history :global(.h-item.deny .h-badge) {
+    color: var(--danger);
+  }
+
+  .history :global(.h-input) {
+    font-family: var(--font-mono);
+    color: var(--text-2);
+    overflow-wrap: anywhere;
+  }
+
+  .files :global(.t-group + .t-group) {
+    margin-top: 14px;
+  }
+
+  .files :global(.t-title) {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-bottom: 6px;
+  }
+
+  .files :global(.t-vol + .t-vol) {
+    margin-top: 10px;
+  }
+
+  .files :global(.t-vol-head) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 8px;
+    font-size: 12px;
+  }
+
+  .files :global(.t-conn) {
+    font-size: 11px;
+  }
+
+  .files :global(.t-conn.on) {
+    color: var(--accent);
+  }
+
+  .files :global(.t-conn.off) {
+    color: var(--danger);
+  }
+
+  .files :global(.t-files) {
+    margin: 4px 0 0;
+    padding-left: 12px;
+    list-style: none;
+    font-size: 12px;
+    color: var(--text-2);
+    border-left: 1px solid var(--line);
+  }
+
+  .files :global(.t-files li) {
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    line-height: 1.7;
+  }
+
+  /* 시뮬레이터 전체에 걸린 설명 — 패널 밖, 전체 폭 두 단 */
+  .notes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 48px;
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  .notes ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+
+  .notes li + li {
+    margin-top: 6px;
+  }
+
+  .notes code {
+    font-size: 0.9em;
+  }
+
+  .result:focus {
+    outline: none;
+  }
+
+  .limits-note {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  :global([data-busy]) .result {
+    opacity: 0.7;
+  }
+
+  /* 콘솔이 520px 아래로 줄어드는 폭부터는 한 단으로 쌓는다 */
+  @media (max-width: 959px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      grid-template-areas:
+        'scen'
+        'console'
+        'files'
+        'notes';
+    }
+  }
+
+  @media (max-width: 720px) {
+    .notes {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .run {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .tool {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

@@ -1,0 +1,489 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+// 라이브 판정 로그는 첫 화면에서 내렸다(2026-10-18, 사용자 요청 — 나중에 다시 쓸 수 있게 주석으로 남김).
+// 되살리려면 이 import 와 아래 <LiveLog /> 주석을 함께 푼다.
+// import LiveLog from '../components/LiveLog.astro';
+import ProfileCard from '../components/ProfileCard.astro';
+import StackMarquee from '../components/StackMarquee.astro';
+import Measure from '../components/Measure.astro';
+
+const all = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const featured = all.filter((p) => p.data.featured);
+
+const measures = [
+  {
+    title: '사내 RAG 검색 품질',
+    unit: 'MRR · 같은 평가셋',
+    max: 1,
+    rows: [
+      { label: '청킹 개선 전', value: 0.722, display: '0.722', tone: 'before' as const },
+      { label: '메일 한 통 단위', value: 0.829, display: '0.829', tone: 'after' as const },
+    ],
+    note: '메일을 대화 묶음이 아니라 한 통 단위로 잘라 색인했습니다. 좋아 보였던 다른 개선안은 대부분 같은 평가셋에서 나빠져 기각했습니다.',
+    href: '/projects/rag-search/',
+    link: '사내 RAG 검색',
+  },
+  {
+    title: '운영 반영 규칙, 문서만 있을 때',
+    unit: '최근 한 달 36건 실측',
+    max: 100,
+    rows: [
+      { label: '복사 직전 diff', value: 61, display: '61%', tone: 'before' as const },
+      { label: '서버본 백업', value: 5, display: '5%', tone: 'before' as const },
+    ],
+    note: '규칙은 문서에 다 적혀 있었습니다. 그래서 실행 직전에 막는 훅으로 바꿨고, 판단이 필요 없는 백업은 훅이 알아서 뜹니다.',
+    href: '/projects/deploy-guard/',
+    link: '배포 가드',
+  },
+  {
+    title: '「다르다」고 나온 소스 파일',
+    unit: '개수',
+    max: 250,
+    rows: [
+      { label: '처음 비교', value: 250, display: '250', tone: 'before' as const },
+      { label: '줄바꿈·들여쓰기 제외', value: 91, display: '91', tone: 'muted' as const },
+      { label: '실제로 손볼 파일', value: 40, display: '약 40', tone: 'after' as const },
+    ],
+    note: '비교 방법을 바꿔 다시 잰 값이 이관 범위와 공수를 바꿨습니다.',
+    href: '/projects/amore-d2c/',
+    link: '아모레퍼시픽 D2C 브랜드몰',
+  },
+];
+
+
+// 소개 — 근거: career-log docs/portfolio.md·raw/유상한사람들(디자인 직군 입사→개발 전향, 에이전시 고객사 10곳),
+// career-2024-2026 §1·§2(요청~회신 단독 처리, 2026 AI Labs·사내 도구). 「다음 방향」은 사용자가 고른 세 가지(2026-10-18).
+// 근거 대조에서 고친 것: 노무현재단은 「운영」만(이관 근거 없음), 에이전시 「동시에」 삭제(한 시점 최대 약 8곳).
+// 사용자 정정(2026-10-18): 운영 업무는 주로 그전 팀에서, AI Labs 이동 후 인수인계(네오팜 진행 중) · 네오팜 몰은 3곳.
+const about = [
+  {
+    title: '지금 하는 일',
+    body: [
+      '2026년 AI Labs로 팀을 옮겨 사내 업무 도구와 AI 도입(AX)에 집중하고 있습니다. 고객사 Jira 요청을 사내 업무로 옮기는 지라두, 업무 기록에서 결정 이유를 찾아 주는 사내 검색, 산출물 관리 시스템을 만들고 운영합니다.',
+      '개발은 AI 코딩 에이전트와 함께 하되, 결과는 직접 확인합니다. 그전 팀에서 맡던 운영 업무는 팀을 옮기면서 인수인계했고, 네오팜은 지금 넘기는 중입니다.',
+    ],
+  },
+  {
+    title: '걸어온 길',
+    body: [
+      '2018년 에이전시에 웹디자인 직군으로 입사했다가, 회사 제안으로 개발자로 전향했습니다. PHP는 독학과 실무로 익혔습니다.',
+      '그 뒤 공공기관·인증원·병원·법무법인 같은 고객사 10여 곳의 사이트와 관리자를 맡으며, 요청 하나를 끝까지 처리하는 방식으로 일했습니다. 2024년 위버로프트에 와서는 플랫폼 사업 개발팀에서 네오팜 자사몰 3곳과 아모레퍼시픽 브랜드몰의 주문·결제·쿠폰과 관리자 기능을 맡았고, 크래프톤 사이트의 AWS 이관과 노무현재단 홈페이지 운영도 함께 했습니다.',
+    ],
+  },
+  {
+    title: '다음 방향',
+    body: [
+      '지금까지는 여러 고객사를 넓게 맡아 왔습니다. 앞으로는 트래픽과 데이터가 많은 시스템의 설계와 성능을 깊게 다루고 싶습니다.',
+      '메시지 큐와 캐시(Kafka·Redis)도 실제 문제에 맞춰 써 보려 합니다. AI 에이전트와 일하는 방식은 혼자 쓰는 데서 그치지 않고, 팀이 함께 쓰는 도구와 규칙으로 넓혀 가려 합니다.',
+    ],
+  },
+];
+
+const career = [
+  {
+    period: '2024.05 — 현재',
+    org: '위버로프트',
+    desc: '플랫폼 사업 개발팀에서 네오팜·아모레퍼시픽·크래프톤 등 고객사 12곳의 쇼핑몰·사이트 운영 개발 → 2026년 AI Labs에서 사내 업무 도구와 AI 도입(AX).',
+    current: true,
+  },
+  {
+    period: '2023.04 — 2023.10',
+    org: '프리랜서',
+    desc: '전 직장을 통해 의뢰받은 서비스 개발. 관리자 기능, 상품권 API를 연동한 선물하기.',
+    current: false,
+  },
+  {
+    period: '2018.07 — 2023.04',
+    org: '유상한사람들',
+    desc: '에이전시 웹 개발. 공공기관·인증원·의료·법률·커머스 고객사 10여 곳의 사이트와 관리자.',
+    current: false,
+  },
+];
+---
+
+<Base>
+  <section class="hero">
+    <div class="hero-bg dotgrid" aria-hidden="true"></div>
+    <div class="container hero-grid">
+      <div class="intro">
+        <p class="prompt mono"><span class="path">~/junseok</span> $ whoami<span class="caret" aria-hidden="true"></span></p>
+        <h1 class="name">황준석<span class="role">Backend Engineer</span></h1>
+        <p class="lead">
+          7년차 백엔드 개발자입니다. 카페24 기반 쇼핑몰의 주문·결제·쿠폰과 관리자 기능을 맡아 왔고, 2026년 AI Labs로 옮겨
+          지금은 사내 업무 도구와 AI 도입(AX)에 집중하고 있습니다.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/projects/">프로젝트 보기</a>
+          <a class="btn" href="/resume/">이력서</a>
+        </div>
+      </div>
+      <ProfileCard />
+      {/* <LiveLog /> */}
+    </div>
+  </section>
+
+  <section class="section about" aria-labelledby="about-title">
+    <div class="container">
+      <h2 class="section-title" id="about-title">소개</h2>
+      <div class="about-list">
+        {
+          about.map((a) => (
+            <div class="about-row">
+              <h3>{a.title}</h3>
+              <div class="about-body">
+                {a.body.map((t) => (
+                  <p>{t}</p>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <StackMarquee />
+
+  <section class="section alt" aria-labelledby="measure-title">
+    <div class="container">
+      <div class="head-row">
+        <h2 class="section-title" id="measure-title">측정으로 남은 것</h2>
+        <p class="section-lead">숫자는 바꾸기 전과 후를 같은 기준으로 잰 것만 적었습니다.</p>
+      </div>
+      <div class="measures">
+        {measures.map((m) => <Measure {...m} />)}
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section" aria-labelledby="projects-title">
+    <div class="container">
+      <div class="head-row">
+        <h2 class="section-title" id="projects-title">주요 프로젝트</h2>
+        <p class="section-lead">지금 AI Labs에서 만드는 도구 두 가지와, 그전 팀에서 가장 오래 맡은 운영 두 가지입니다. 나머지 네 개는 전체 목록에 있습니다.</p>
+      </div>
+      <div class="case-list">
+        {
+          featured.map((p, i) => (
+            <ProjectCard
+              id={p.id}
+              href={`/projects/${p.id}/`}
+              title={p.data.title}
+              summary={p.data.summary}
+              client={p.data.client}
+              period={p.data.period}
+              index={i}
+            />
+          ))
+        }
+      </div>
+      <a class="all-link" href="/projects/">
+        전체 프로젝트 {all.length}개 보기
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="section alt" aria-labelledby="career-title">
+    <div class="container career-wrap">
+      <div>
+        <h2 class="section-title" id="career-title">경력</h2>
+        <p class="section-lead">회사별 기간과 맡은 일입니다. 프로젝트별 내용은 이력서에 정리했습니다.</p>
+        <a class="btn career-btn" href="/resume/">이력서 전체 보기</a>
+      </div>
+      <ol class="timeline">
+        {
+          career.map((row) => (
+            <li class:list={['t-row', { current: row.current }]}>
+              <span class="t-dot" aria-hidden="true" />
+              <p class="t-period mono">{row.period}</p>
+              <h3 class="t-org">{row.org}</h3>
+              <p class="t-desc">{row.desc}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    padding-block: clamp(56px, 9vw, 112px) clamp(56px, 8vw, 96px);
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(32px, 5vw, 64px);
+    align-items: center;
+  }
+
+  .prompt {
+    font-size: 14px;
+    color: var(--text-2);
+    margin-bottom: 22px;
+  }
+
+  .path {
+    color: var(--accent);
+  }
+
+  .caret {
+    display: inline-block;
+    width: 8px;
+    height: 1.1em;
+    margin-left: 4px;
+    vertical-align: -3px;
+    background: var(--accent);
+    animation: blink 1.1s steps(1) infinite;
+  }
+
+  .name {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: clamp(44px, 6.6vw, 76px);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .role {
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-3);
+  }
+
+  .lead {
+    margin-top: 28px;
+    max-width: 34em;
+    font-size: clamp(17px, 1.8vw, 19px);
+    line-height: 1.75;
+    color: var(--text);
+  }
+
+
+
+
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 32px;
+  }
+
+  .head-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 48px;
+    align-items: end;
+    margin-bottom: 36px;
+  }
+
+  .head-row .section-lead {
+    margin-top: 0;
+    justify-self: end;
+    max-width: 30em;
+  }
+
+  .measures {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 36px;
+  }
+
+
+
+
+
+
+
+
+
+
+  /* 소개: 제목 왼쪽, 본문 오른쪽(본문 측정폭 680px) */
+  .about-list {
+    margin-top: 32px;
+  }
+
+  .about-row {
+    display: grid;
+    grid-template-columns: minmax(0, 220px) minmax(0, 680px);
+    gap: 10px 48px;
+    padding-block: 28px;
+    border-top: 1px solid var(--line);
+  }
+
+  .about-row:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .about-row h3 {
+    font-size: 19px;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .about-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .about-body p {
+    color: var(--text-2);
+    font-size: 16.5px;
+    line-height: 1.8;
+  }
+
+  .case-list {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 28px;
+    font-size: 14px;
+    color: var(--text-2);
+    transition: gap 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .all-link:hover {
+    gap: 10px;
+    color: var(--accent);
+  }
+
+  .career-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 32px 64px;
+    align-items: start;
+  }
+
+  .career-btn {
+    margin-top: 28px;
+  }
+
+  .timeline {
+    position: relative;
+    margin: 0;
+    padding: 0 0 0 28px;
+    list-style: none;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 10px;
+    bottom: 10px;
+    width: 1px;
+    background: var(--line-2);
+  }
+
+  .t-row {
+    position: relative;
+    padding-bottom: 32px;
+  }
+
+  .t-row:last-child {
+    padding-bottom: 0;
+  }
+
+  .t-dot {
+    position: absolute;
+    left: -28px;
+    top: 6px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 2px solid var(--line-2);
+    background: var(--bg-2);
+  }
+
+  .current .t-dot {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  .t-period {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  .current .t-period {
+    color: var(--accent);
+  }
+
+  .t-org {
+    margin-top: 4px;
+    font-size: 20px;
+  }
+
+  .t-desc {
+    margin-top: 6px;
+    color: var(--text-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .caret {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .measures {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .head-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .head-row .section-lead {
+      justify-self: start;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .about-row {
+      grid-template-columns: minmax(0, 1fr);
+      padding-block: 22px;
+    }
+
+    .career-wrap {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
