@@ -9,7 +9,7 @@ role: 이관 · 운영 개발
 stack:
   - WordPress
   - PHP
-  - AWS (CloudFront · WAF · RDS)
+  - AWS (EC2 · RDS Multi-AZ · CloudFront · WAF)
   - Greenhouse API
   - GitLab CI
   - JMeter · Datadog

@@ -12,6 +12,7 @@ stack:
   - MariaDB
   - Docker
   - GitLab CI/CD
+  - PowerShell (수집기)
 source: career-log §2.15(기능 목록·커밋 205건·9/18 발표), 작업 메모(수집·서버 분리 구조, 첨부 관련 사고 두 건) · 문장은 GPT-6-Astra 재작성(2026-10-19, 이전 판의 사실 기준, Claude 대조)
 ---
 

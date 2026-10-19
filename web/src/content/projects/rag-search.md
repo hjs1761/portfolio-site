@@ -8,12 +8,14 @@ period: 2026.09 ~ 현재
 client: 위버로프트 사내 (AI Labs)
 role: 기획 · 설계 · 개발 (단독)
 stack:
-  - Python
-  - FastAPI
-  - PostgreSQL · pgvector
-  - LangGraph
-  - 사내 LLM
-  - Docker
+  - Python 3.12
+  - FastAPI 0.115
+  - PostgreSQL 17 · pgvector
+  - LangGraph 1.2 · Langfuse 4
+  - bge-m3 · bge-reranker-v2-m3
+  - 사내 LLM (Qwen 계열)
+  - Electron 44
+  - Docker Compose
 source: 작업 메모(현황 2026-10), 작업 기록 2026-09(MRR·리랭커 실험), 이전 사례 원문 · 문장은 GPT-6-Astra 재작성(2026-10-19, 이전 판의 사실 기준, Claude 대조)
 ---
 

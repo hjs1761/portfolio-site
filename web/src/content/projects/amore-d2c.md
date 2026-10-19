@@ -11,8 +11,8 @@ stack:
   - PHP
   - MySQL
   - 카페24 API · 웹훅
-  - Kubernetes
-  - AWS Secrets Manager
+  - PHP 8.3 · Kubernetes (AWS EKS) · Helm
+  - AWS S3 · Secrets Manager
   - SonarQube
 links:
   - label: 일리윤 공식몰 (판매 종료)

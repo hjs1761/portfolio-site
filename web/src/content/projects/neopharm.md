@@ -8,9 +8,10 @@ period: 2024.05 ~ 2026
 client: 네오팜 — 아토팜샵 · 리얼베리어몰 · 티엘스몰
 role: 단독 개발 · 운영 → 인수인계 중
 stack:
-  - PHP
+  - PHP 8.3
   - MySQL
-  - 카페24 API · 웹훅
+  - 카페24 API (2024-12-01) · 웹훅
+  - jQuery 3.6
   - 크론 배치
 links:
   - label: 아토팜 공식쇼핑몰

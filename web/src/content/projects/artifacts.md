@@ -7,10 +7,12 @@ period: 2026.08 ~ 현재
 client: 위버로프트 사내
 role: 설계 · 개발 · 배포
 stack:
-  - Laravel
-  - PHP
+  - PHP 8.5
+  - Laravel 13
+  - MariaDB
+  - Vite 8 · Tailwind CSS 4
   - Docker
-  - GitLab CI/CD
+  - GitLab CI/CD · Nexus
 source: career-log §2.15(화면 20개·스냅샷 SSRF·낙관적 잠금·레지스트리·백업 cron), 작업 메모(첫날 이미지 깨짐→재설계, 에셋 8,955·페이지 728·누락 0, 프로젝트 33개 중 15개 이름 변형) · 문장은 GPT-6-Astra 재작성(2026-10-19, 이전 판의 사실 기준, Claude 대조)
 ---
 
