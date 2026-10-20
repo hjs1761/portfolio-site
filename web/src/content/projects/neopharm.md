@@ -10,7 +10,7 @@ role: 단독 개발 · 운영 → 인수인계 중
 stack:
   - PHP 8.3
   - MySQL
-  - 카페24 API (2024-12-01) · 웹훅
+  - 카페24 API · 웹훅
   - jQuery 3.6
   - 크론 배치
 links:
