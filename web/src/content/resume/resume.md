@@ -6,9 +6,9 @@ title: 경력기술서
 
 7년차 PHP 백엔드 개발자입니다. 에이전시에서 4년 10개월간 인증원·병원·법무법인·커머스 사이트를 인수·운영·신규 개발했습니다. 위버로프트에서는 카페24 기반 D2C 커머스몰의 구축·운영·보안 대응·서비스 종료를 맡았습니다. 네오팜·아모레퍼시픽·크래프톤 등 고객사 12곳의 요청을 분석·개발·검증하고, 근거를 붙여 회신했습니다(업무 댓글 659건). 2026년 AI Labs로 옮겨 사내 개발 플랫폼과 AI 도입(AX)을 기획·개발·배포하고 사내 발표를 진행하고 있습니다.
 
-- **AI 활용(AX)**: 사내 RAG 검색 구축(MRR 0.829), Jira 연동 플랫폼, Claude Code 기반 개발과 배포 안전장치
+- **AI 활용(AX)**: Claude Code로 사내 RAG 검색(MRR 0.829)과 배포 안전장치 개발, Jira 연동 플랫폼
 - **커머스 플랫폼**: 카페24 API·웹훅·인앱, 멀티샵·스킨 커스텀 기반 D2C 구축·운영
-- **백엔드·인프라**: PHP·Laravel·Python, MySQL, AWS·Kubernetes·Docker·GitLab CI/CD 설계·운영
+- **백엔드·인프라**: PHP·Laravel, MySQL·MariaDB, AWS·Docker·GitLab CI/CD 운영
 - **CRM·데이터**: 회원 데이터 동기화, 세그먼트 자동 발송, 클릭 추적·매출 귀속 대시보드
 - **보안·컴플라이언스**: 보안성검토·ISMS 실사 대응, 개인정보 암호화·파기 증적
 - **문제 해결**: 웹훅 유실 데이터 복구, 결제·세션 장애 원인 규명
@@ -16,8 +16,8 @@ title: 경력기술서
 ## 기술
 
 - **주력**: `PHP` `JavaScript/jQuery` `MySQL` `MariaDB` `Cafe24 API/Webhook` `Laravel`
-- **보조**: `Python` `FastAPI` `ASP` `MSSQL` `PostgreSQL(pgvector)` `AWS (EC2·RDS·CloudFront·WAF·Secrets Manager)` `Kubernetes` `Docker` `GitLab CI/CD` `WordPress` `Datadog` `JMeter`
-- **AI**: `Claude Code` `LangGraph` `Langfuse` `RAG 파이프라인 (임베딩·리랭커·평가셋 게이트)`
+- **보조**: `ASP` `MSSQL` `AWS (EC2·RDS·CloudFront·WAF·Secrets Manager)` `Docker` `GitLab CI/CD` `WordPress` `Datadog` `JMeter`
+- **AI 활용**: `Claude Code`. Python으로 만든 프로젝트(사내 RAG의 LangGraph·Langfuse·pgvector, 배포 가드 훅, 이 사이트의 시뮬레이터)는 Claude Code로 개발했습니다.
 
 ## 경력
 
@@ -31,7 +31,7 @@ title: 경력기술서
 
 2026.09 \~ 현재
 
-**기술** Python 3.12 · FastAPI 0.115 · PostgreSQL 17 + pgvector · LangGraph 1.2 · Langfuse 4 · bge-m3(임베딩) · bge-reranker-v2-m3(리랭커) · 사내 LLM(Qwen 계열) · Electron 44(설치 앱) · Docker Compose
+**기술** Claude Code로 개발 · Python 3.12 · FastAPI 0.115 · PostgreSQL 17 + pgvector · LangGraph 1.2 · Langfuse 4 · bge-m3(임베딩) · bge-reranker-v2-m3(리랭커) · 사내 LLM(Qwen 계열) · Electron 44(설치 앱) · Docker Compose
 
 - 업무 기록·댓글·메일에서 의사결정 근거를 찾아 답하는 검색 구현. 데이터 수집부터 검색 화면까지 구축
 - 메일 한 통 단위로 색인해 **MRR 0.722 → 0.829** 개선. 평가셋·품질 게이트로 회귀 방지
@@ -54,7 +54,7 @@ title: 경력기술서
 - **사무실 웰컴보드 자동화** (2026.07): 캘린더와 연동해 입사·면접·방문 일정 자동 표시
 - **한·영 입력 동기화 도구** (2026.07 \~ 08, Swift): 맥↔윈도우 원격 작업용 도구 개발·배포
 - **AI 상세페이지 리디자인 검토** (2026.08): 오픈소스 분석·실험으로 자체 개발·앱 판매 가능성 보고
-- **AI 에이전트 배포 가드** (2026.08 \~, Python 3 · Claude Code 훅): 실행 직전에 운영 서버 반영 절차 강제 [(프로젝트)](/projects/deploy-guard/)
+- **AI 에이전트 배포 가드** (2026.08 \~, Claude Code 훅, Claude Code로 개발): 실행 직전에 운영 서버 반영 절차 강제 [(프로젝트)](/projects/deploy-guard/)
 - 개발자 채용 면접 참여 (2025.10 \~)
 
 **고객사 운영 개발**
@@ -95,9 +95,9 @@ title: 경력기술서
 
 2026.01 \~ 2026.09
 
-**기술** PHP 8.3 · Kubernetes(AWS EKS) · Helm · AWS S3(AWS SDK for PHP 3) · PhpSpreadsheet 1
+**기술** PHP 8.3 · AWS S3(AWS SDK for PHP 3) · PhpSpreadsheet 1 · 협력사가 구성한 Kubernetes(AWS EKS) 환경
 
-- 관리자 시스템을 IDC에서 Kubernetes 환경으로 옮기는 작업. PHP 8 호환, 파일 저장소 S3 전환, 비밀 값 관리 서비스 도입
+- 협력사가 구성한 Kubernetes(AWS EKS) 환경에 맞춰 관리자 시스템을 IDC에서 옮기는 작업. PHP 8 호환, 파일 저장소 S3 전환, 비밀 값 관리 서비스 도입
 - 보안 검토로 중단된 재이관을 요구사항 원문에 맞춘 최소안으로 재설계
 - 보안성검토·모의해킹·정적 분석 지적 사항 조치. ISMS 점검 인터뷰·실사 대응
 - 정보통신망법에 맞춘 마케팅 동의 분리안을 프론트·관리자·DB에 반영하고 본사 통합회원 연동 검증
@@ -187,7 +187,7 @@ WordPress 글로벌 사이트(한·영·중·일) · 2025.09 \~ 2026.06
 
 - **홈 인프라** (2026 \~): 맥미니 + 외장 저장장치 기반 3-2-1 백업(restic·Time Machine), 기기 3대 동기화·원격 접속 체계 구축
 - **가족용 가계부 웹앱** (2026 \~, PHP 8.3 · Laravel 11 · Livewire 4 · MySQL 8 · Docker): 여행 계획(지도 연동)·월별 정산 등을 PR 단위로 개발·운영
-- **이 사이트** (2026.10 \~): Astro 7 정적 사이트 + FastAPI 0.115(Python 3.12) 시뮬레이터, Docker Compose · Cloudflare Tunnel [(구조)](/colophon/)
+- **이 사이트** (2026.10 \~): Claude Code로 만든 Astro 7 정적 사이트 + FastAPI 시뮬레이터, Docker Compose · Cloudflare Tunnel [(구조)](/colophon/)
 
 ---
 

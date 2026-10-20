@@ -7,10 +7,10 @@ period: 2026.08 ~ 현재
 client: 개인 작업 환경 (Claude Code)
 role: 설계 · 개발 · 운영
 stack:
-  - Python 3
   - Claude Code Hooks
+  - Python 3 (Claude Code로 개발)
   - Bash
-  - FastAPI 0.115 · Astro 7 (시뮬레이터)
+  - FastAPI · Astro (시뮬레이터, Claude Code로 개발)
 source: 작업 메모(도입 배경 실측·우회 점검·실전 테스트), 훅 코드·로그 · 문장은 GPT-6-Astra 재작성(2026-10-19, 이전 판의 사실 기준, Claude 대조)
 ---
 

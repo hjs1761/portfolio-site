@@ -8,6 +8,7 @@ period: 2026.09 ~ 현재
 client: 위버로프트 사내 (AI Labs)
 role: 기획 · 설계 · 개발 (단독)
 stack:
+  - Claude Code로 개발
   - Python 3.12
   - FastAPI 0.115
   - PostgreSQL 17 · pgvector
