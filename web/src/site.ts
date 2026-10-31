@@ -10,6 +10,7 @@ export const site = {
     { href: '/projects/', label: '프로젝트' },
     { href: '/ai/', label: 'AI와 일하는 방식' },
     { href: '/resume/', label: '이력서' },
+    { href: 'https://hjs1761.tistory.com/', label: '블로그' },
   ],
   updated: '2026-10-18',
   // Cloudflare Web Analytics 사이트 토큰(페이지에 그대로 드러나는 공개 값). 비우면 통계 스크립트를 넣지 않는다.
